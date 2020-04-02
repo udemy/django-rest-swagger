@@ -5,13 +5,26 @@ from importlib import import_module
 from django.conf import settings
 from django.utils import six
 from django.utils.six.moves.urllib_parse import urljoin
-from django.core.urlresolvers import RegexURLResolver, RegexURLPattern
+try:
+    from django.core.urlresolvers import RegexURLResolver, RegexURLPattern
+except ImportError:
+    from django.urls import URLResolver as RegexURLResolver, URLPattern as RegexURLPattern
+
 from django.contrib.admindocs.views import simplify_regex
 
 from rest_framework.views import APIView
 
 from .apidocview import APIDocView
 from . import SWAGGER_SETTINGS
+
+
+def get_regex(resolver_or_pattern):
+    """Utility method for django's deprecated resolver.regex"""
+    try:
+        regex = resolver_or_pattern.regex
+    except AttributeError:
+        regex = resolver_or_pattern.pattern.regex
+    return regex
 
 
 class UrlParser(object):
@@ -119,7 +132,7 @@ class UrlParser(object):
         if callback is None or self.__exclude_router_api_root__(callback):
             return
 
-        path = simplify_regex(prefix + pattern.regex.pattern)
+        path = simplify_regex(prefix + get_regex(pattern).pattern)
 
         if filter_path is not None:
             if re.match('^/?%s(/.*)?$' % re.escape(filter_path), path) is None:
@@ -165,7 +178,7 @@ class UrlParser(object):
                         and pattern.namespace in exclude_namespaces:
                     continue
 
-                pref = prefix + pattern.regex.pattern
+                pref = prefix + get_regex(pattern).pattern
                 pattern_list.extend(self.__flatten_patterns_tree__(
                     pattern.url_patterns,
                     pref,
