@@ -6,6 +6,9 @@ from .compat import import_string
 from rest_framework_swagger import SWAGGER_SETTINGS
 
 
+def is_authenticated(user):
+    return user.is_authenticated() if callable(user.is_authenticated) else user.is_authenticated
+
 class APIDocView(APIView):
     def initial(self, request, *args, **kwargs):
         self.permission_classes = (self.get_permission_class(request),)
@@ -17,7 +20,7 @@ class APIDocView(APIView):
     def get_permission_class(self, request):
         if SWAGGER_SETTINGS['is_superuser'] and not request.user.is_superuser:
             return IsAdminUser
-        if SWAGGER_SETTINGS['is_authenticated'] and not request.user.is_authenticated():
+        if SWAGGER_SETTINGS['is_authenticated'] and not is_authenticated(request.user):
             return IsAuthenticated
         return AllowAny
 
