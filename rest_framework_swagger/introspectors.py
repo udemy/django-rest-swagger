@@ -13,7 +13,7 @@ from abc import ABCMeta, abstractmethod
 
 from django.http import HttpRequest
 from django.contrib.admindocs.utils import trim_docstring
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str as smart_text
 
 import rest_framework
 from rest_framework import viewsets
