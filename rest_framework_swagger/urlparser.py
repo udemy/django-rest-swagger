@@ -4,7 +4,7 @@ from importlib import import_module
 
 from django.conf import settings
 from django.utils import six
-from django.utils.six.moves.urllib_parse import urljoin
+from django.utils.six import moves
 try:
     from django.core.urlresolvers import RegexURLResolver, RegexURLPattern
 except ImportError:
@@ -25,6 +25,9 @@ def get_regex(resolver_or_pattern):
     except AttributeError:
         regex = resolver_or_pattern.pattern.regex
     return regex
+
+
+urljoin = moves.urllib_parse.urljoin
 
 
 class UrlParser(object):
